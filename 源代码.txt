@@ -1,0 +1,58 @@
+clear all
+clc
+I=imread('test4 copy.bmp');
+subplot(1,3,1);
+imshow(I);
+title('原始图像');
+f=double(I);
+F=fft2(f);
+F=fftshift(F);
+A=abs(F);
+A=(A-min(min(A)))/(max(max(A))-min(min(A)))*255; 
+subplot(1,3,2);
+imshow(A);
+title('图像的F变换');
+[P,Q]=size(F);
+k1=1;
+k2=5;
+D0=10;  %滤波器半径
+for u=1:1:P
+    for v=1:1:Q
+         D(u,v)=sqrt((u-floor(P/2))^2+(v-floor(Q/2))^2);
+%          H(u,v)=1/(1+(D(u,v)/D0)^(2*n));
+%          G(u,v)=H(u,v)*F(u,v);                 %B_LP
+%          
+%          H(u,v)=exp(-D(u,v)^2/(2*D0^2));
+%          G(u,v)=H(u,v)*F(u,v);                 %G_LP
+%          
+%          H(u,v)=1/(1+(D0/D(u,v))^(2*n));
+%          G(u,v)=H(u,v)*F(u,v);                 %B_HP
+%          
+%          H(u,v)=1-exp(-D(u,v)^2/(2*D0^2));
+%          G(u,v)=H(u,v)*F(u,v);                 %G_HP
+%          
+%          H(u,v)=1+c*4*pi^2*(D(u,v))^2;
+%          G(u,v)=H(u,v)*F(u,v);                 %laplace
+         
+         H(u,v)=1-exp(-D(u,v)^2/(2*D0^2));
+         G(u,v)=(k1+k2*H(u,v))*F(u,v);         %unmask
+    end
+end
+g=ifftshift(G);
+g=ifft2(g);
+g=uint8(real(g));
+subplot(1,3,3);
+imshow(g);
+title('滤波结果');
+%计算功率谱比
+% sum_p=0;
+% sum_f=0;
+% for u=1:1:P
+%     for v=1:1:Q
+%         p=(abs(G(u,v)))^2;
+%         sum_p=sum_p+p;
+%         f=(abs(F(u,v)))^2;
+%         sum_f=sum_f+f;
+%     end
+% end
+% Rate=sum_p/sum_f                 
